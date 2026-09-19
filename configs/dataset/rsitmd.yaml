@@ -1,0 +1,20 @@
+defaults:
+  - _self_
+
+name: 'rsitmd'
+
+image_dir: '/data/clc/data/RSIMTD/images'
+annotations_path: '/data/clc/data/RSIMTD/dataset_RSITMD.json'
+
+# Dataloader Parameters
+batch_size: 128  #vitb32
+# batch_size: 64 #vitb16
+# batch_size: 32 #vitl14
+num_workers: 8
+pin_memory: True
+
+evaluation:
+  # General evaluation settings
+  log_interval: 100
+  eval_fold5: false
+  save_results: false

@@ -1,0 +1,15 @@
+# Eval config — shared by eval/eval_*.py (pure MAIL checkpoints)
+# Override checkpoint_path / dataset paths on the CLI, e.g.:
+#   python eval/eval_coco_new.py checkpoint_path=/path/to/best.ckpt
+model:
+  original_clip_name: 'ViT-B/32'
+
+checkpoint_path: "/data/clc/GROUT-MAIL/outputs/MAIL-Pure-Flickr30K/flickr30k/checkpoints/best-epoch=epoch=14-rsum=val/RSUM=136.75.ckpt"   # required: pass via CLI override
+
+dataset:
+  # MS-COCO
+  root: '/data/clc/Long-CLIP/data/coco/val2017'
+  annFile: '/data/clc/Long-CLIP/data/coco/annotations/captions_val2017.json'
+  # Flickr30K
+  json_file: '/data/clc/data/flickr30k/annotations/test.json'
+  image_root: '/data/clc/data/flickr30k/images'

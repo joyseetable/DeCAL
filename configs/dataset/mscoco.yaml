@@ -1,0 +1,29 @@
+# 文件路径: configs/dataset/flickr30k.yaml
+
+defaults:
+  - _self_
+
+name: 'mscoco'
+
+image_dir_base: 'DATA/mscoco/images'
+
+train_annotations_path: '/data/clc/data/mscoco/annotations/train_enhance.jsonl'
+val_annotations_path: '/data/clc/data/mscoco/annotations/coco_val.json'
+test_annotations_path: 'DATA/mscoco/annotations/coco_test.json'
+tam_chunks_dir: 'DATA/mscoco/allchunks'
+
+image_dir_base_train: "/data/clc/data/mscoco/annotations/train2017"
+image_dir_base_val: "/data/clc/Long-CLIP/data/coco/val2017"
+
+# Dataloader Parameters
+batch_size: 128  #vitb32
+# batch_size: 64 #vitb16
+# batch_size: 32 #vitl14
+num_workers: 8
+pin_memory: True
+train_ratio: 1
+evaluation:
+  # General evaluation settings
+  log_interval: 100
+  eval_fold5: false
+  save_results: false

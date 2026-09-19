@@ -1,0 +1,43 @@
+# Pure MAIL: RSICD — AL (affine) layers ONLY
+# Frozen CLIP backbone + per-layer x -> x*a + b, InfoNCE loss.
+defaults:
+  - dataset: rsicd
+  - trainer: default
+  - _self_
+
+model:
+  name: 'MAIL-Pure'
+  original_clip_name: 'ViT-B/32'
+  type: 'mail_pure'
+  # --- modality-axis ablation (see scripts/mail_pure/ablation_modality.sh) ---
+  # independent | bridged | bridged_rev | shared_scalar
+  mail_variant: 'independent'
+  # rank of the bridge in the coupled variants; 0 or a negative value = full linear map
+  bridge_rank: 1
+  # LoRA-style scaling alpha/rank for the low-rank bridge (null = alpha equals rank)
+  bridge_alpha: null
+
+  mail_rank: 32        # kept for config compatibility (unused by pure AL)
+  mail_layers: 12      # kept for config compatibility (unused by pure AL)
+  use_all_gather: true
+
+dataset:
+  batch_size: 128       # ViT-L/14 (dataset yaml default 128 is for ViT-B/32)
+
+optimizer:
+  lr: 0.0005
+  weight_decay: 0.01
+
+trainer:
+  max_epochs: 20
+  val_check_interval: 1.0
+  default_root_dir: "./outputs"
+
+seed: 42
+project_name: 'MAIL-Pure-RSICD'
+
+checkpoint_callback:
+  monitor: 'val/RSUM'
+  mode: 'max'
+  save_top_k: 1
+  filename: 'best-epoch={epoch}-rsum={val/RSUM:.2f}'

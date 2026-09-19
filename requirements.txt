@@ -1,0 +1,16 @@
+# BSI — direct dependencies
+# Install CLIP separately, it is not on PyPI:
+#   pip install git+https://github.com/openai/CLIP.git
+
+torch>=2.0
+torchvision
+pytorch-lightning>=2.0
+hydra-core>=1.3
+omegaconf>=2.3
+ftfy
+regex
+einops
+transformers
+numpy
+Pillow
+tqdm

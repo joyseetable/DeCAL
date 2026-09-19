@@ -1,0 +1,29 @@
+# 文件路径: configs/dataset/flickr30k.yaml
+
+defaults:
+  - _self_
+
+name: 'flickr30k'
+
+image_dir: '/data/clc/data/flickr30k/images'
+prototype_labels_path: '/data/clc/APSE-IPIK/NEW_APSEIPIK/src/offline/flickr30k_prototypes/prototype_centers.npy'
+train_annotations_path: '/data/clc/data/flickr30k/annotations/train_enhance.jsonl'
+val_annotations_path: '/data/clc/data/flickr30k/annotations/val_enhance.jsonl'
+test_annotations_path: '/data/clc/data/flickr30k/annotations/test.json'
+
+# teacher_npy_path: '/data/clc/APSE-IPIK/NEW_APSEIPIK/DATA/flickr30k/npy/teacher_feats_vitl14.npy'
+# This file will be loaded if it exists for the training set
+# enhanced_annotations_path: 'DATA/flickr30k/annotations/enhanced_captions.json'
+
+# Dataloader Parameters
+batch_size: 128  #vitb32
+# batch_size: 64 #vitb16
+# batch_size: 32 #vitl14
+num_workers: 8
+pin_memory: true
+train_ratio: 1
+evaluation:
+  # General evaluation settings
+  log_interval: 100
+  eval_fold5: false
+  save_results: false

@@ -1,0 +1,12 @@
+# 文件路径: configs/trainer/default.yaml
+_target_: pytorch_lightning.Trainer
+num_sanity_val_steps: 0
+limit_val_batches: 1.0
+val_check_interval: 1.0
+precision: 32
+max_epochs: 30
+accelerator: 'gpu'
+devices: 8
+benchmark: True
+log_every_n_steps: 10
+default_root_dir: 'outputs/'

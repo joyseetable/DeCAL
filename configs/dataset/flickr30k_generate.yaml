@@ -1,0 +1,17 @@
+# 文件路径: configs/dataset/flickr30k_generate.yaml
+# This config is ONLY for the data generation script.
+
+defaults:
+  - _self_
+
+name: 'flickr30k'
+
+# --- Paths needed for generation ---
+
+# Directory containing the actual .jpg files
+image_dir: '/data/clc/APSE-IPIK/NEW_APSEIPIK/DATA/flickr30k/images'
+
+# !!! IMPORTANT !!!
+# Path to the SINGLE, UNSPLIT Karpathy annotation file.
+# The script will read this file and generate captions only for the 'train' split images.
+train_annotations_path: '/data/clc/APSE-IPIK/NEW_APSEIPIK/DATA/flickr30k/annotations/dataset_flickr30k.json'
