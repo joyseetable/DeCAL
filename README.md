@@ -1,6 +1,6 @@
 # DeCAL
 
-**Beyond Structure Injection: Feature-Level Modulation for CLIP Adaptation in Cross-Modal Retrieval**
+**Beyond Structure Injection: Towards Feature-Level Modulation for Cross-Modal Retrieval**
 
 # Abstract
 
