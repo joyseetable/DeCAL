@@ -1,4 +1,4 @@
-# BSI
+# DeCAL
 
 **Beyond Structure Injection: Feature-Level Modulation for CLIP Adaptation in Cross-Modal Retrieval**
 
@@ -14,7 +14,7 @@ More importantly, DeCAL consistently exhibits strong generalization capability a
 
 -->
 ![](src/DeCAL.png)
-BSI keeps the CLIP dual encoder frozen and inserts four per-channel affine operators inside every
+DeCAL keeps the CLIP dual encoder frozen and inserts four per-channel affine operators inside every
 transformer block of both towers: before the attention and MLP sub-layers and after their outputs,
 plus one operator on the visual class token. Each operator computes `x → a ⊙ x + b` with `a`
 initialized to 1 and `b` to 0, so optimization starts exactly on the pre-trained function. The
@@ -42,7 +42,7 @@ Additional dependencies: `pytorch-lightning`, `hydra-core`, `omegaconf`, `ftfy`,
 
 # Training
 
-BSI uses Hydra for configuration management. The main training entry point is `train.py`.
+DeCAL uses Hydra for configuration management. The main training entry point is `train.py`.
 
 ```bash
 # Train on Flickr30K (default)
