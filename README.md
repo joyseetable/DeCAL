@@ -13,7 +13,7 @@ More importantly, DeCAL consistently exhibits strong generalization capability a
 <!-- To include the framework figure, place it under src/ and uncomment the next line.
 
 -->
-![](src/framework.png)
+![](src/DeCAL.png)
 BSI keeps the CLIP dual encoder frozen and inserts four per-channel affine operators inside every
 transformer block of both towers: before the attention and MLP sub-layers and after their outputs,
 plus one operator on the visual class token. Each operator computes `x → a ⊙ x + b` with `a`
