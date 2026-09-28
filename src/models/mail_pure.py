@@ -99,7 +99,7 @@ def _build_affine_layers(visual_dim, text_dim, num_layers,
         mk(),                                               # last_ln (CLS only)
     )
 
-
+  
 class PureMAILModel(nn.Module):
     """
     Frozen CLIP + per-layer affine (AL) projections, InfoNCE retrieval.
@@ -130,7 +130,7 @@ class PureMAILModel(nn.Module):
         self.mail_variant = config.model.get('mail_variant', 'independent')
         self.bridge_rank = config.model.get('bridge_rank', 1)
         self.bridge_alpha = config.model.get('bridge_alpha', None)
-
+        self._ref_holder = {'model': None}
         if self.mail_variant == 'independent':
             # Vision AL — one instance per vision transformer layer
             (self.vis_ln_mlp, self.vis_ln_att,
@@ -174,7 +174,63 @@ class PureMAILModel(nn.Module):
               f"Text layers: {self.text_layers}")
         print(f"[PureMAIL] Params: {trainable:,} trainable / {total:,} total "
               f"({trainable/total:.2%})")
+    def set_reference_encoder(self, module):
+        if module is None:
+            self._ref_holder['model'] = None
+            return
+        module = module.eval()
+        for param in module.parameters():
+            param.requires_grad = False
+        self._ref_holder['model'] = module
 
+    def _load_reference_encoder(self):
+        try:
+            import clip as vanilla_clip
+        except ImportError as exc:  # pragma: no cover - depends on environment
+            raise RuntimeError(
+                "loss.lambda_ref > 0 requires an unmodified CLIP to compute the "
+                "reference features, but `import clip` failed. Install it with "
+                "`pip install git+https://github.com/openai/CLIP.git`, call "
+                "`model.set_reference_encoder(clip_model)`, or set "
+                "loss.lambda_ref=0.0."
+            ) from exc
+        model, _ = vanilla_clip.load(self.clip_name, device='cpu', jit=False)
+        print(f"[PureMAIL] Loaded reference CLIP for L_ref: {self.clip_name}")
+        self.set_reference_encoder(model)
+        return self._ref_holder['model']
+
+    def get_reference_encoder(self, device=None):
+        """Return the frozen reference encoder, or None on the inference path."""
+        ref = self._ref_holder['model']
+        if ref is None:
+            if not self.training:
+                # L_ref is a training-time term; inference only needs encode_*.
+                return None
+            ref = self._load_reference_encoder()
+        if device is not None:
+            try:
+                current = next(ref.parameters()).device
+            except StopIteration:  # pragma: no cover - parameterless module
+                current = device
+            if current != torch.device(device):
+                ref = ref.to(device)
+                self._ref_holder['model'] = ref
+        return ref
+
+    def reference_cosine_penalty(self, image_features, text_features,
+                                 images, text_tokens):
+        ref_model = self.get_reference_encoder(images.device)
+        with torch.no_grad():
+            ref_img = F.normalize(ref_model.encode_image(images), dim=-1)
+            ref_txt = F.normalize(ref_model.encode_text(text_tokens), dim=-1)
+        # Both encoders return L2-normalised features, so the dot product is the
+        # cosine; cast in case the reference encoder runs in another precision.
+        ref_img = ref_img.to(image_features.dtype)
+        ref_txt = ref_txt.to(text_features.dtype)
+
+        loss_v = (1.0 - (image_features * ref_img).sum(dim=-1)).mean()
+        loss_t = (1.0 - (text_features * ref_txt).sum(dim=-1)).mean()
+        return loss_v + loss_t
     # ── Vision Encoder ────────────────────────────────────────
     def encode_image(self, images):
         vit = self.clip.visual
@@ -246,9 +302,11 @@ class PureMAILModel(nn.Module):
         labels = torch.arange(gathered_img.shape[0], device=device)
         loss_infonce = (F.cross_entropy(logits_i2t, labels) +
                         F.cross_entropy(logits_t2i, labels)) / 2
-
+        loss_ref = self.reference_cosine_penalty(
+            image_features, text_features, images, text_tokens)
+        total_loss = loss_infonce + 0.1 * loss_ref
         return {
-            'loss': loss_infonce,
+            'loss': total_loss,
             'loss_global': loss_infonce,
             'loss_ot': torch.tensor(0.0, device=device),
             'loss_balance': torch.tensor(0.0, device=device),
